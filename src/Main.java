@@ -6,95 +6,94 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         // Użytkownik podaje liczbę wierszy i kolumn
-        System.out.println("Podaj liczbę wierszy: ");
+        System.out.println("===================================");
+        System.out.println("   GENERATOR PERMUTACJI MACIERZY   ");
+        System.out.println("===================================");
+        System.out.print("Podaj liczbę wierszy: ");
         int rows = scanner.nextInt();
-        System.out.println("Podaj liczbę kolumn: ");
+        System.out.print("Podaj liczbę kolumn: ");
         int cols = scanner.nextInt();
 
-        int[][] matrix = new int[rows][cols];
+        // Tworzenie finalnej zmiennej dla matrix
+        final int[][] matrix;
 
         // Wybór sposobu wprowadzenia wartości do macierzy
-        System.out.println("Wybierz sposób wprowadzenia wartości (1 ręcznie, 2 losowo): ");
+        System.out.print("Wybierz sposób wprowadzenia wartości (1 ręcznie, 2 losowo): ");
         int choice = scanner.nextInt();
+
         switch (choice) {
             case 1:
-                // Ręczne wprowadzenie wartości do macierzy
-                System.out.println("Wprowadź wartości do macierzy:");
-                for (int i = 0; i < rows; i++) {
-                    for (int j = 0; j < cols; j++) {
-                        System.out.print("Wartość [" + i + "][" + j + "]: ");
-                        matrix[i][j] = scanner.nextInt();
-                    }
-                }
+                matrix = new int[rows][cols];  // alokacja pamięci dla macierzy
+                System.out.println("\nWprowadź wartości do macierzy:");
+                IntStream.range(0, rows).forEach(i ->
+                        IntStream.range(0, cols).forEach(j -> {
+                            System.out.print("Wartość [" + i + "][" + j + "]: ");
+                            matrix[i][j] = scanner.nextInt();
+                        })
+                );
                 break;
             case 2:
-                // Losowe generowanie wartości do macierzy
                 matrix = generateRandomMatrix(rows, cols);
+                System.out.println("\nWygenerowana macierz losowa:");
                 break;
             default:
                 System.out.println("Nieprawidłowy wybór.");
                 return;
         }
 
-        System.out.println("Macierz:");
+        // Wyświetlanie macierzy
+        System.out.println("\n===============================");
+        System.out.println("       Macierz wejściowa        ");
+        System.out.println("===============================");
         printMatrix(matrix);
 
-        // Generowanie permutacji wierszy i kolumn
-        List<int[]> rowPermutations = generatePermutations(rows);
-        List<int[]> colPermutations = generatePermutations(cols);
+        // Generowanie permutacji kolumn i obliczanie wyników
+        List<int[]> permutations = generatePermutations(matrix.length);
 
-        // Obliczanie maksymalnych i minimalnych sum oraz iloczynów
-        int maxSum = Integer.MIN_VALUE;
-        int minSum = Integer.MAX_VALUE;
-        String maxSumPath = "";
-        String minSumPath = "";
-        int maxProduct = Integer.MIN_VALUE;
-        int minProduct = Integer.MAX_VALUE;
-        String maxProductPath = "";
-        String minProductPath = "";
+        System.out.println("\n===============================");
+        System.out.println("        Wygenerowane permutacje ");
+        System.out.println("===============================");
+        permutations.forEach(perm -> System.out.println(Arrays.toString(perm)));
 
-        for (int[] rowPerm : rowPermutations) {
-            for (int[] colPerm : colPermutations) {
-                int sum = calculateSum(matrix, rowPerm, colPerm);
-                int product = calculateProduct(matrix, rowPerm, colPerm);
+        // Obliczanie maksymalnej i minimalnej sumy oraz iloczynu
+        int maxSum = permutations.stream()
+                .mapToInt(perm -> calculateSum(matrix, perm))
+                .max()
+                .orElse(Integer.MIN_VALUE);
 
-                // Update max/min sums and paths
-                if (sum > maxSum) {
-                    maxSum = sum;
-                    maxSumPath = generatePath(rowPerm, colPerm);
-                }
-                if (sum < minSum) {
-                    minSum = sum;
-                    minSumPath = generatePath(rowPerm, colPerm);
-                }
+        int minSum = permutations.stream()
+                .mapToInt(perm -> calculateSum(matrix, perm))
+                .min()
+                .orElse(Integer.MAX_VALUE);
 
-                // Update max/min products and paths
-                if (product > maxProduct) {
-                    maxProduct = product;
-                    maxProductPath = generatePath(rowPerm, colPerm);
-                }
-                if (product < minProduct) {
-                    minProduct = product;
-                    minProductPath = generatePath(rowPerm, colPerm);
-                }
-            }
-        }
+        int maxProduct = permutations.stream()
+                .mapToInt(perm -> calculateProduct(matrix, perm))
+                .max()
+                .orElse(Integer.MIN_VALUE);
+
+        int minProduct = permutations.stream()
+                .mapToInt(perm -> calculateProduct(matrix, perm))
+                .min()
+                .orElse(Integer.MAX_VALUE);
 
         // Wyświetlanie wyników
-        System.out.println("Maksymalna suma: " + maxSum + " (Ścieżka: " + maxSumPath + ")");
-        System.out.println("Minimalna suma: " + minSum + " (Ścieżka: " + minSumPath + ")");
-        System.out.println("Maksymalny iloczyn: " + maxProduct + " (Ścieżka: " + maxProductPath + ")");
-        System.out.println("Minimalny iloczyn: " + minProduct + " (Ścieżka: " + minProductPath + ")");
+        System.out.println("\n===============================");
+        System.out.println("        Wyniki obliczeń         ");
+        System.out.println("===============================");
+        System.out.println("Maksymalna suma: " + maxSum);
+        System.out.println("Minimalna suma: " + minSum);
+        System.out.println("-------------------------------");
+        System.out.println("Maksymalny iloczyn: " + maxProduct);
+        System.out.println("Minimalny iloczyn: " + minProduct);
+        System.out.println("===============================\n");
     }
 
     // Generowanie losowej macierzy o podanych wymiarach
     public static int[][] generateRandomMatrix(int rows, int cols) {
         Random random = new Random();
-        int[][] matrix = new int[rows][cols];
-        IntStream.range(0, rows).forEach(i ->
-                IntStream.range(0, cols).forEach(j -> matrix[i][j] = random.nextInt(100))
-        );
-        return matrix;
+        return IntStream.range(0, rows).mapToObj(i ->
+                IntStream.range(0, cols).map(j -> random.nextInt(100)).toArray()
+        ).toArray(int[][]::new);
     }
 
     // Generowanie permutacji liczb od 0 do n-1
@@ -109,11 +108,11 @@ public class Main {
         if (index == arr.length) {
             permutations.add(arr.clone());
         } else {
-            for (int i = index; i < arr.length; i++) {
+            IntStream.range(index, arr.length).forEach(i -> {
                 swap(arr, index, i);
                 permute(permutations, arr, index + 1);
                 swap(arr, index, i);  // Przywróć oryginalny stan
-            }
+            });
         }
     }
 
@@ -123,40 +122,25 @@ public class Main {
         arr[j] = temp;
     }
 
-    // Wyświetlanie macierzy
+    // Obliczanie sumy elementów macierzy zgodnie z permutacją
+    private static int calculateSum(int[][] matrix, int[] perm) {
+        return IntStream.range(0, perm.length)
+                .map(i -> matrix[i][perm[i]])
+                .sum();
+    }
+
+    // Obliczanie iloczynu elementów macierzy zgodnie z permutacją
+    private static int calculateProduct(int[][] matrix, int[] perm) {
+        return IntStream.range(0, perm.length)
+                .map(i -> matrix[i][perm[i]])
+                .reduce(1, (a, b) -> a * b);
+    }
+
+    // Wyświetlanie macierzy w czytelny sposób
     private static void printMatrix(int[][] matrix) {
-        for (int[] row : matrix) {
-            for (int value : row) {
-                System.out.print(value + "\t");
-            }
+        Arrays.stream(matrix).forEach(row -> {
+            Arrays.stream(row).forEach(value -> System.out.print(value + "\t"));
             System.out.println();
-        }
-    }
-
-    // Obliczanie sumy elementów macierzy zgodnie z permutacjami wierszy i kolumn
-    private static int calculateSum(int[][] matrix, int[] rowPerm, int[] colPerm) {
-        int sum = 0;
-        for (int i = 0; i < rowPerm.length; i++) {
-            sum += matrix[rowPerm[i]][colPerm[i]];
-        }
-        return sum;
-    }
-
-    // Obliczanie iloczynu elementów macierzy zgodnie z permutacjami wierszy i kolumn
-    private static int calculateProduct(int[][] matrix, int[] rowPerm, int[] colPerm) {
-        int product = 1;
-        for (int i = 0; i < rowPerm.length; i++) {
-            product *= matrix[rowPerm[i]][colPerm[i]];
-        }
-        return product;
-    }
-
-    // Generowanie ścieżki dla danego zestawu permutacji
-    private static String generatePath(int[] rowPerm, int[] colPerm) {
-        StringBuilder path = new StringBuilder();
-        for (int i = 0; i < rowPerm.length; i++) {
-            path.append(String.format("(%d,%d) ", rowPerm[i], colPerm[i]));
-        }
-        return path.toString().trim();
+        });
     }
 }
