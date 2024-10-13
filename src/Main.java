@@ -19,14 +19,13 @@ public class Main {
         switch (choice) {
             case 1:
                 // Ręczne wprowadzenie wartości do macierzy
-                int[][] scannerMatrix = matrix;
                 System.out.println("Wprowadź wartości do macierzy:");
-                IntStream.range(0, rows).forEach(i ->
-                        IntStream.range(0, cols).forEach(j -> {
-                            System.out.print("Wartość [" + i + "][" + j + "]: ");
-                            scannerMatrix[i][j] = scanner.nextInt();
-                        })
-                );
+                for (int i = 0; i < rows; i++) {
+                    for (int j = 0; j < cols; j++) {
+                        System.out.print("Wartość [" + i + "][" + j + "]: ");
+                        matrix[i][j] = scanner.nextInt();
+                    }
+                }
                 break;
             case 2:
                 // Losowe generowanie wartości do macierzy
@@ -38,32 +37,35 @@ public class Main {
         }
 
         System.out.println("Macierz:");
-        int[][] finalMatrix = matrix;
-        IntStream.range(0, rows).forEach(i -> {
-            IntStream.range(0, cols).forEach(j -> System.out.print(finalMatrix[i][j] + "\t"));
-            System.out.println();
-        });
+        printMatrix(matrix);
 
-        // Generowanie permutacji i obliczanie wyników
-        List<int[]> permutations = generatePermutations(matrix.length);
-        int[][] matrixFinal = matrix;
-        int maxSum = permutations.stream()
-                .mapToInt(perm -> calculateSum(matrixFinal, perm))
-                .max()
-                .orElse(0);
-        int minSum = permutations.stream()
-                .mapToInt(perm -> calculateSum(matrixFinal, perm))
-                .min()
-                .orElse(0);
+        // Generowanie permutacji wierszy i kolumn
+        List<int[]> rowPermutations = generatePermutations(rows);
+        List<int[]> colPermutations = generatePermutations(cols);
 
-        int maxProduct = permutations.stream()
-                .mapToInt(perm -> calculateProduct(matrixFinal, perm))
-                .max()
-                .orElse(0);
-        int minProduct = permutations.stream()
-                .mapToInt(perm -> calculateProduct(matrixFinal, perm))
-                .min()
-                .orElse(0);
+        System.out.println("Permutacje wierszy:");
+        rowPermutations.forEach(perm -> System.out.println(Arrays.toString(perm)));
+
+        System.out.println("Permutacje kolumn:");
+        colPermutations.forEach(perm -> System.out.println(Arrays.toString(perm)));
+
+        // Obliczanie maksymalnych i minimalnych sum oraz iloczynów
+        int maxSum = Integer.MIN_VALUE;
+        int minSum = Integer.MAX_VALUE;
+        int maxProduct = Integer.MIN_VALUE;
+        int minProduct = Integer.MAX_VALUE;
+
+        for (int[] rowPerm : rowPermutations) {
+            for (int[] colPerm : colPermutations) {
+                int sum = calculateSum(matrix, rowPerm, colPerm);
+                int product = calculateProduct(matrix, rowPerm, colPerm);
+
+                maxSum = Math.max(maxSum, sum);
+                minSum = Math.min(minSum, sum);
+                maxProduct = Math.max(maxProduct, product);
+                minProduct = Math.min(minProduct, product);
+            }
+        }
 
         // Wyświetlanie wyników
         System.out.println("Maksymalna suma: " + maxSum);
@@ -108,17 +110,31 @@ public class Main {
         arr[j] = temp;
     }
 
-    // Obliczanie sumy elementów macierzy zgodnie z permutacją
-    private static int calculateSum(int[][] matrix, int[] perm) {
-        return IntStream.range(0, perm.length)
-                .map(i -> matrix[i][perm[i]])
-                .sum();
+    // Wyświetlanie macierzy
+    private static void printMatrix(int[][] matrix) {
+        for (int[] row : matrix) {
+            for (int value : row) {
+                System.out.print(value + "\t");
+            }
+            System.out.println();
+        }
     }
 
-    // Obliczanie iloczynu elementów macierzy zgodnie z permutacją
-    private static int calculateProduct(int[][] matrix, int[] perm) {
-        return IntStream.range(0, perm.length)
-                .map(i -> matrix[i][perm[i]])
-                .reduce(1, (a, b) -> a * b);
+    // Obliczanie sumy elementów macierzy zgodnie z permutacjami wierszy i kolumn
+    private static int calculateSum(int[][] matrix, int[] rowPerm, int[] colPerm) {
+        int sum = 0;
+        for (int i = 0; i < rowPerm.length; i++) {
+            sum += matrix[rowPerm[i]][colPerm[i]];
+        }
+        return sum;
+    }
+
+    // Obliczanie iloczynu elementów macierzy zgodnie z permutacjami wierszy i kolumn
+    private static int calculateProduct(int[][] matrix, int[] rowPerm, int[] colPerm) {
+        int product = 1;
+        for (int i = 0; i < rowPerm.length; i++) {
+            product *= matrix[rowPerm[i]][colPerm[i]];
+        }
+        return product;
     }
 }
