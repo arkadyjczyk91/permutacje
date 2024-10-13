@@ -43,35 +43,48 @@ public class Main {
         List<int[]> rowPermutations = generatePermutations(rows);
         List<int[]> colPermutations = generatePermutations(cols);
 
-        System.out.println("Permutacje wierszy:");
-        rowPermutations.forEach(perm -> System.out.println(Arrays.toString(perm)));
-
-        System.out.println("Permutacje kolumn:");
-        colPermutations.forEach(perm -> System.out.println(Arrays.toString(perm)));
-
         // Obliczanie maksymalnych i minimalnych sum oraz iloczynów
         int maxSum = Integer.MIN_VALUE;
         int minSum = Integer.MAX_VALUE;
+        String maxSumPath = "";
+        String minSumPath = "";
         int maxProduct = Integer.MIN_VALUE;
         int minProduct = Integer.MAX_VALUE;
+        String maxProductPath = "";
+        String minProductPath = "";
 
         for (int[] rowPerm : rowPermutations) {
             for (int[] colPerm : colPermutations) {
                 int sum = calculateSum(matrix, rowPerm, colPerm);
                 int product = calculateProduct(matrix, rowPerm, colPerm);
 
-                maxSum = Math.max(maxSum, sum);
-                minSum = Math.min(minSum, sum);
-                maxProduct = Math.max(maxProduct, product);
-                minProduct = Math.min(minProduct, product);
+                // Update max/min sums and paths
+                if (sum > maxSum) {
+                    maxSum = sum;
+                    maxSumPath = generatePath(rowPerm, colPerm);
+                }
+                if (sum < minSum) {
+                    minSum = sum;
+                    minSumPath = generatePath(rowPerm, colPerm);
+                }
+
+                // Update max/min products and paths
+                if (product > maxProduct) {
+                    maxProduct = product;
+                    maxProductPath = generatePath(rowPerm, colPerm);
+                }
+                if (product < minProduct) {
+                    minProduct = product;
+                    minProductPath = generatePath(rowPerm, colPerm);
+                }
             }
         }
 
         // Wyświetlanie wyników
-        System.out.println("Maksymalna suma: " + maxSum);
-        System.out.println("Minimalna suma: " + minSum);
-        System.out.println("Maksymalny iloczyn: " + maxProduct);
-        System.out.println("Minimalny iloczyn: " + minProduct);
+        System.out.println("Maksymalna suma: " + maxSum + " (Ścieżka: " + maxSumPath + ")");
+        System.out.println("Minimalna suma: " + minSum + " (Ścieżka: " + minSumPath + ")");
+        System.out.println("Maksymalny iloczyn: " + maxProduct + " (Ścieżka: " + maxProductPath + ")");
+        System.out.println("Minimalny iloczyn: " + minProduct + " (Ścieżka: " + minProductPath + ")");
     }
 
     // Generowanie losowej macierzy o podanych wymiarach
@@ -136,5 +149,14 @@ public class Main {
             product *= matrix[rowPerm[i]][colPerm[i]];
         }
         return product;
+    }
+
+    // Generowanie ścieżki dla danego zestawu permutacji
+    private static String generatePath(int[] rowPerm, int[] colPerm) {
+        StringBuilder path = new StringBuilder();
+        for (int i = 0; i < rowPerm.length; i++) {
+            path.append(String.format("(%d,%d) ", rowPerm[i], colPerm[i]));
+        }
+        return path.toString().trim();
     }
 }
