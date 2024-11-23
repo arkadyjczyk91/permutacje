@@ -1,3 +1,14 @@
+/**
+ * @autors: Arkadiusz Przychocki, Małgorzata Rywalska
+ * Program do generowania permutacji macierzy i obliczania maksymalnych i minimalnych wartości dla sumy i iloczynu.
+ * Użytkownik podaje liczbę wierszy i kolumn macierzy, a następnie wybiera sposób wprowadzenia wartości (ręcznie lub losowo).
+ * Program generuje wszystkie możliwe permutacje kolumn i oblicza maksymalne i minimalne wartości dla sumy i iloczynu.
+ * Wyniki są wyświetlane w konsoli.
+ * Dodatkowo użytkownik może kontynuować obliczenia lub zakończyć program.
+ * Do uruchomienia programu wymagane jest środowisko uruchomieniowe Java 22 lub nowsze.
+ * Java 23 LTS -> https://www.oracle.com/java/technologies/downloads/
+ */
+
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -110,7 +121,7 @@ public class Main {
         System.out.println("       Macierz wejściowa        ");
         System.out.println("===============================");
         System.out.println("                Kolumna"); // Etykieta Kolumna
-                // Wyświetlanie nagłówków kolumn
+        // Wyświetlanie nagłówków kolumn
         System.out.print("             ");  // Dodatkowe spacje dla estetyki
         for (int col = 1; col <= matrix[0].length; col++) {
             System.out.printf("%-8d", col); // Wyświetlamy numery kolumn
@@ -128,8 +139,6 @@ public class Main {
 
         System.out.println("------------------------------------------------------");
     }
-
-
 
     // Generowanie permutacji liczb od 0 do n-1
     private static List<int[]> generatePermutations(int n) {
